@@ -1,0 +1,47 @@
+[
+    {
+        "name": "Nice, France",
+        "region": "Europe",
+        "tags": ["beach"],
+        "budget": "low",
+        "travel_type": "solo",
+        "latitude": "43.7102",
+        "longitude": "7.2620"
+    },
+    {
+        "name": "Interlaken, Switzerland",
+        "region": "Europe",
+        "tags": ["mountain"],
+        "budget": "high",
+        "travel_type": "couple",
+        "latitude": "46.6863",
+        "longitude": "7.8632"
+    },
+    {
+        "name": "Queenstown, New Zealand",
+        "region": "Oceania",
+        "tags": ["adventure", "mountain"],
+        "budget": "moderate",
+        "travel_type": "solo",
+        "latitude": "-45.0312",
+        "longitude": "168.6626"
+    },
+    {
+        "name": "Bali, Indonesia",
+        "region": "Asia",
+        "tags": ["beach", "relaxation"],
+        "budget": "low",
+        "travel_type": "family",
+        "latitude": "-8.3405",
+        "longitude": "115.0920"
+    },
+    {
+        "name": "Banff, Canada",
+        "region": "North America",
+        "tags": ["mountain", "hiking"],
+        "budget": "moderate",
+        "travel_type": "solo",
+        "latitude": "51.1784",
+        "longitude": "-115.5708"
+    }
+]
