@@ -20,7 +20,7 @@ UNSPLASH_ACCESS_KEY = "7_EKtKVpcR4ObamVZ2rlihklzXBPHBPjqNbPQl06qMI"
 RAPIDAPI_KEY = "56531449a5msha6825acbcb0c4d7p183678jsn99ace807947d"
 OPENTRIPMAP_API_KEY = RAPIDAPI_KEY
 OPENWEATHER_API_KEY = "bd2f3dc7ee16f1ce9b23941cd7131313"
-EXCHANGE = "f98260fb95e219fcdf1f6bea"
+
 
 # ------------------ Gemini Setup ------------------
 genai.configure(api_key=GEMINI_API_KEY)
