@@ -3,7 +3,7 @@
 import streamlit as st
 import requests
 import datetime
-from google import generativeai as genai
+import google.generativeai as genai
 from agent.nodes.itinerary_creator import create_itinerary
 from amadeus import Client
 
