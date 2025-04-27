@@ -15,12 +15,12 @@ import base64
 
 # ------------------ API Keys ------------------
 # Replace your Gemini setup with:
-GEMINI_API_KEY = st.secrets.google.api_key  # Dot notation is more reliable
-UNSPLASH_ACCESS_KEY = st.secrets.unsplash.access_key
-RAPIDAPI_KEY = st.secrets.rapidapi.key
-OPENTRIPMAP_API_KEY = st.secrets.OPENTRIPMAP.key  # Case-sensitive!
-OPENWEATHER_API_KEY = st.secrets.openweather.key
-
+GEMINI_API_KEY = "AIzaSyBoQsCnxICf0keun64246GM0p2dwIR-X3I"
+UNSPLASH_ACCESS_KEY = "7_EKtKVpcR4ObamVZ2rlihklzXBPHBPjqNbPQl06qMI"
+RAPIDAPI_KEY = "56531449a5msha6825acbcb0c4d7p183678jsn99ace807947d"
+OPENTRIPMAP_API_KEY = RAPIDAPI_KEY
+OPENWEATHER_API_KEY = "bd2f3dc7ee16f1ce9b23941cd7131313"
+EXCHANGE = "f98260fb95e219fcdf1f6bea"
 
 # ------------------ Gemini Setup ------------------
 genai.configure(api_key=GEMINI_API_KEY)
@@ -590,7 +590,7 @@ def get_weather_emoji(condition_code):
 @st.cache_data(ttl=3600)
 def get_destination_weather(lat, lon):
     try:
-        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=bd2f3dc7ee16f1ce9b23941cd7131313&units=metric"
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
         response = requests.get(url)
         data = response.json()
         return {
