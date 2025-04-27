@@ -22,7 +22,7 @@ UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 OPENTRIPMAP_API_KEY = os.getenv("OPENTRIPMAP_API_KEY")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
-Money_Exchange_API_KEY = os.getenv("MONEYEXCHANGE_API_KEY")
+Money_Exchange_RATE_API_KEY = os.getenv("MONEY_EXCHANGE_RATE_API_KEY")
 
 # ------------------ Gemini Setup ------------------
 genai.configure(api_key=GEMINI_API_KEY)
@@ -131,7 +131,7 @@ def get_exchange_rate(base_currency, target_currency):
     
     try:
         # Try to get live rates (using your existing API key)
-        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_API_KEY}/latest/{base_currency}"
+        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_RATE_API_KEY}/latest/{base_currency}"
         res = requests.get(url, timeout=5).json()
         rate = res['conversion_rates'][target_currency]
         
@@ -527,7 +527,7 @@ def text_to_speech_base64(text, lang='en'):
 @st.cache_data(ttl=86400)
 def get_exchange_rate(base, target):
     try:
-        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_API_KEY}/latest/{base}"
+        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_RATE_API_KEY}/latest/{base}"
         res = requests.get(url).json()
         return round(res['conversion_rates'][target], 4)
     except Exception as e:
