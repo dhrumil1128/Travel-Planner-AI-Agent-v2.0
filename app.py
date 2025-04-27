@@ -11,16 +11,18 @@ from amadeus import Client
 from gtts import gTTS
 from io import BytesIO
 import base64
-
+from dotenv import load_dotenv
+import os
 
 # ------------------ API Keys ------------------
-# Replace your Gemini setup with:
-GEMINI_API_KEY = "AIzaSyBoQsCnxICf0keun64246GM0p2dwIR-X3I"
-UNSPLASH_ACCESS_KEY = "7_EKtKVpcR4ObamVZ2rlihklzXBPHBPjqNbPQl06qMI"
-RAPIDAPI_KEY = "56531449a5msha6825acbcb0c4d7p183678jsn99ace807947d"
-OPENTRIPMAP_API_KEY = RAPIDAPI_KEY
-OPENWEATHER_API_KEY = "bd2f3dc7ee16f1ce9b23941cd7131313"
+load_dotenv()  # Load variables from .env
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
+RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+OPENTRIPMAP_API_KEY = os.getenv("OPENTRIPMAP_API_KEY")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+Money_Exchange_API_KEY = os.getenv("MONEYEXCHANGE_API_KEY")
 
 # ------------------ Gemini Setup ------------------
 genai.configure(api_key=GEMINI_API_KEY)
@@ -129,7 +131,7 @@ def get_exchange_rate(base_currency, target_currency):
     
     try:
         # Try to get live rates (using your existing API key)
-        url = f"https://v6.exchangerate-api.com/v6/f98260fb95e219fcdf1f6bea/latest/{base_currency}"
+        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_API_KEY}/latest/{base_currency}"
         res = requests.get(url, timeout=5).json()
         rate = res['conversion_rates'][target_currency]
         
@@ -525,7 +527,7 @@ def text_to_speech_base64(text, lang='en'):
 @st.cache_data(ttl=86400)
 def get_exchange_rate(base, target):
     try:
-        url = f"https://v6.exchangerate-api.com/v6/f98260fb95e219fcdf1f6bea/latest/{base}"
+        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_API_KEY}/latest/{base}"
         res = requests.get(url).json()
         return round(res['conversion_rates'][target], 4)
     except Exception as e:
@@ -1135,13 +1137,10 @@ with tab4:
 
 # ==================== TAB 5: IMPROVED FLIGHT SEARCH ====================
 from amadeus import Client
-import datetime
-import streamlit as st
 
-# Initialize Amadeus client
 amadeus = Client(
-    client_id='rYe3cDE2YSrD4OlmhOMYnMkH1W05QMbx',
-    client_secret='d8SLxyrj84aAIzOo'
+    client_id=os.getenv("AMADEUS_CLIENT_ID"),
+    client_secret=os.getenv("AMADEUS_CLIENT_SECRET")
 )
 
 # Airline data with properly sized logos (40x40)
