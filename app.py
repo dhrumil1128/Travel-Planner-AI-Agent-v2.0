@@ -20,7 +20,7 @@ UNSPLASH_ACCESS_KEY = "7_EKtKVpcR4ObamVZ2rlihklzXBPHBPjqNbPQl06qMI"
 RAPIDAPI_KEY = "56531449a5msha6825acbcb0c4d7p183678jsn99ace807947d"
 OPENTRIPMAP_API_KEY = RAPIDAPI_KEY
 OPENWEATHER_API_KEY = "bd2f3dc7ee16f1ce9b23941cd7131313"
-EXCHANGE = "f98260fb95e219fcdf1f6bea"
+
 
 # ------------------ Gemini Setup ------------------
 genai.configure(api_key=GEMINI_API_KEY)
@@ -822,13 +822,15 @@ with tab2:
                 st.markdown(f'<a href="{map_link}" target="_blank" class="map-button">📍 View on Map</a>', unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
+        # Destination selection
         selected_places = st.multiselect(
             "🌟 Select places for your itinerary:",
             options=[d["name"] for d in st.session_state.destinations],
-            default=st.session_state.selected_places
+            default=st.session_state.selected_places,
+            key="place_selector"
         )
         
-        if st.button("✨ Generate Itinerary", type="primary"):
+        if st.button("✨ Generate Itinerary", type="primary", key="generate_itinerary"):
             with st.spinner("Creating your personalized itinerary..."):
                 state = AgentState(preferences={
                     "preferred_city": city,
@@ -843,8 +845,10 @@ with tab2:
                 updated_state = create_itinerary(state)
                 st.session_state.itinerary_data = updated_state.itinerary
                 st.session_state.itinerary_generated = True
+                st.session_state.selected_places = selected_places
                 st.rerun()
 
+    # Display itinerary if generated
     if st.session_state.get('itinerary_generated', False) and 'itinerary_data' in st.session_state:
         st.markdown("---")
         st.markdown("### 🗓️ Personalized Itinerary")
@@ -853,9 +857,12 @@ with tab2:
                 st.markdown(f"""
                 <div class='itinerary-day'>
                     <h4>📅 {day['date']}</h4>
-                    {day['activities'].replace('•', '✦')}
+                    {day['activities']}
                 </div>
                 """, unsafe_allow_html=True)
+
+    elif not hasattr(st.session_state, 'destinations'):
+        st.markdown("<div class='center-message'>🕵️‍♂️ Fill out your preferences in the sidebar and hit <b>'Find Destinations'</b></div>", unsafe_allow_html=True)
 
     elif not hasattr(st.session_state, 'destinations'):
         st.markdown("<div class='center-message'>🕵️‍♂️ Fill out your preferences in the sidebar and hit <b>'Find Destinations'</b></div>", unsafe_allow_html=True)
