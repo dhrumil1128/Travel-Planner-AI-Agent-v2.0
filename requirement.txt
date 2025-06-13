@@ -6,6 +6,4 @@ python-dotenv==1.0.0
 python-amadeus==7.3.0
 gTTS==2.4.0
 protobuf==4.25.1
-
-# Install google-generativeai manually from GitHub source
-git+https://github.com/google/generative-ai-python.git@v0.3.2
+google-generativeai==0.3.2  # Use PyPI version instead of Git
