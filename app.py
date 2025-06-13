@@ -1,4 +1,3 @@
-
 # ------------------ Import Libraries ------------------
 import streamlit as st
 import requests
@@ -11,18 +10,20 @@ from amadeus import Client
 from gtts import gTTS
 from io import BytesIO
 import base64
+
 from dotenv import load_dotenv
 import os
+load_dotenv()
 
 # ------------------ API Keys ------------------
-load_dotenv()  # Load variables from .env
-
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 OPENTRIPMAP_API_KEY = os.getenv("OPENTRIPMAP_API_KEY")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 Money_Exchange_RATE_API_KEY = os.getenv("MONEY_EXCHANGE_RATE_API_KEY")
+
+
 
 # ------------------ Gemini Setup ------------------
 genai.configure(api_key=GEMINI_API_KEY)
@@ -131,7 +132,7 @@ def get_exchange_rate(base_currency, target_currency):
     
     try:
         # Try to get live rates (using your existing API key)
-        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_RATE_API_KEY}/latest/{base_currency}"
+        url = f"https://v6.exchangerate-api.com/v6/f98260fb95e219fcdf1f6bea/latest/{base_currency}"
         res = requests.get(url, timeout=5).json()
         rate = res['conversion_rates'][target_currency]
         
@@ -527,7 +528,7 @@ def text_to_speech_base64(text, lang='en'):
 @st.cache_data(ttl=86400)
 def get_exchange_rate(base, target):
     try:
-        url = f"https://v6.exchangerate-api.com/v6/{Money_Exchange_RATE_API_KEY}/latest/{base}"
+        url = f"https://v6.exchangerate-api.com/v6/f98260fb95e219fcdf1f6bea/latest/USD"
         res = requests.get(url).json()
         return round(res['conversion_rates'][target], 4)
     except Exception as e:
@@ -694,7 +695,7 @@ def get_image_url(destination_name):
 
     
 # ------------------ Main App ------------------
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🧳 AI Travel Chat", "🧭 Destination Finder",  "📌 Trip Planning Essentials", "💰 Cost Estimator", "✈️ Flight Deals"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🧳 AI Travel Chat", "🧭 Destination Finder",  "📌 Trip Planning Essentials", "💰 Cost Estimator", "✈️ Flight & Deals"])
 
 
 #---------------------------------- TAB 1 : AI Travel Chat -------------------------------------------
@@ -824,15 +825,13 @@ with tab2:
                 st.markdown(f'<a href="{map_link}" target="_blank" class="map-button">📍 View on Map</a>', unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
-        # Destination selection
         selected_places = st.multiselect(
             "🌟 Select places for your itinerary:",
             options=[d["name"] for d in st.session_state.destinations],
-            default=st.session_state.selected_places,
-            key="place_selector"
+            default=st.session_state.selected_places
         )
         
-        if st.button("✨ Generate Itinerary", type="primary", key="generate_itinerary"):
+        if st.button("✨ Generate Itinerary", type="primary"):
             with st.spinner("Creating your personalized itinerary..."):
                 state = AgentState(preferences={
                     "preferred_city": city,
@@ -847,10 +846,8 @@ with tab2:
                 updated_state = create_itinerary(state)
                 st.session_state.itinerary_data = updated_state.itinerary
                 st.session_state.itinerary_generated = True
-                st.session_state.selected_places = selected_places
                 st.rerun()
 
-    # Display itinerary if generated
     if st.session_state.get('itinerary_generated', False) and 'itinerary_data' in st.session_state:
         st.markdown("---")
         st.markdown("### 🗓️ Personalized Itinerary")
@@ -859,15 +856,14 @@ with tab2:
                 st.markdown(f"""
                 <div class='itinerary-day'>
                     <h4>📅 {day['date']}</h4>
-                    {day['activities']}
+                    {day['activities'].replace('•', '✦')}
                 </div>
                 """, unsafe_allow_html=True)
 
     elif not hasattr(st.session_state, 'destinations'):
         st.markdown("<div class='center-message'>🕵️‍♂️ Fill out your preferences in the sidebar and hit <b>'Find Destinations'</b></div>", unsafe_allow_html=True)
 
-    elif not hasattr(st.session_state, 'destinations'):
-        st.markdown("<div class='center-message'>🕵️‍♂️ Fill out your preferences in the sidebar and hit <b>'Find Destinations'</b></div>", unsafe_allow_html=True)
+
 
 #--------------------------------------------------Tab 3 : Trip Planning Essentials --------------------------------------------------
 with tab3:
@@ -1000,7 +996,8 @@ with tab3:
         
         
         
-    # ==================== TAB 4: COST ESTIMATOR ====================
+        
+# ----------------------------------------------------- TAB 4: COST ESTIMATOR -------------------------------------------------------------------------
 with tab4:
     st.header("💰 Trip Cost Estimator")
     
@@ -1136,11 +1133,15 @@ with tab4:
         
 
 # ==================== TAB 5: IMPROVED FLIGHT SEARCH ====================
+import os 
 from amadeus import Client
+from dotenv import load_dotenv
+
+load_dotenv()
 
 amadeus = Client(
-    client_id=os.getenv("AMADEUS_CLIENT_ID"),
-    client_secret=os.getenv("AMADEUS_CLIENT_SECRET")
+    client_id=os.getenv('KEsMGSME3EBpkAbFAWArzzUTrET15HYW'),
+    client_secret=os.getenv('I31N9MjSvFqU925q')
 )
 
 # Airline data with properly sized logos (40x40)
@@ -1520,7 +1521,7 @@ with tab5:
             
             st.success(f"✈️ Found {len(flights)} flights · {origin} → {destination}")
             
-            for flight in flights[:5]:  # Show top 5 results
+            for flight in flights:  # Show top 5 results
                 display_flight_card(flight)
                 
         except Exception as e:
@@ -1528,12 +1529,3 @@ with tab5:
             
 st.markdown("---")
 st.markdown("<center>🧳 Travel Agent by Dhrumil Pawar</center>", unsafe_allow_html=True)
-
-
-
-
-
-
-
-            
-
