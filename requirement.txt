@@ -1,9 +1,9 @@
 streamlit==1.32.0
+google-generativeai==0.3.2
 requests==2.31.0
 pandas==2.1.4
-numpy==1.26.3
 python-dotenv==1.0.0
-python-amadeus==7.3.0
-gTTS==2.4.0
 protobuf==4.25.1
-google-generativeai==0.3.2  # Use PyPI version instead of Git
+numpy==1.26.3
+gtts==2.4.0
+python-amadeus==7.3.0
