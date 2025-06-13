@@ -1,9 +1,7 @@
+--extra-index-url https://pypi.org/simple/
 google-generativeai==0.3.2
-protobuf==4.25.1  # Must be this exact version
+protobuf==4.25.1  # Must be exactly this version
 streamlit==1.32.0
 requests==2.31.0
 pandas==2.1.4
 python-dotenv==1.0.0
-numpy==1.26.3
-gtts==2.4.0
-python-amadeus==7.3.0
