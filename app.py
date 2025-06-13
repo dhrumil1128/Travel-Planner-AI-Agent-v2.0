@@ -1,4 +1,9 @@
 # FORCE INSTALL (MUST BE FIRST LINES)
+import os, sys
+
+os.system(f"{sys.executable} -m pip install --no-cache-dir --force-reinstall google-generativeai==0.8.5 protobuf==35.29.5")
+
+import google.generativeai as genai  # Test import
 # ------------------ Import Libraries ------------------
 import streamlit as st
 import requests
