@@ -1,6 +1,6 @@
 from agent.state import AgentState
 from datetime import timedelta
-#import google.generativeai as genai
+import google.generativeai as genai
 
 def create_itinerary(state: AgentState) -> AgentState:
     if not state.suggested_destinations or not state.preferences.get("start_date"):
