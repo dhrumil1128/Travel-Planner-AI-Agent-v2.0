@@ -1,10 +1,7 @@
-
-# FORCE INSTALL (MUST BE FIRST LINE)
-import os; os.system("pip install google-generativeai==0.3.2 protobuf==3.20.3 --force-reinstall")
-
-# THEN YOUR IMPORTS
-import streamlit as st
-import google.generativeai as genai  # This will now work
+# FORCE INSTALL (MUST BE FIRST LINES)
+import os, sys
+os.system(f"{sys.executable} -m pip install --no-cache-dir --force-reinstall google-generativeai==0.3.2 protobuf==3.20.3")
+import google.generativeai as genai  # Test import immediately
 
 # ------------------ Import Libraries ------------------
 import streamlit as st
