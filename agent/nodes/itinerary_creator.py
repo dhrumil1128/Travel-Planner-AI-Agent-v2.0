@@ -12,7 +12,7 @@ def create_itinerary(state: AgentState) -> AgentState:
     destination_names = [d["name"] for d in state.suggested_destinations]
     travel_type = state.preferences.get("travel_type", "general")
 
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     
     prompt = f"""
     Create a detailed {num_days}-day itinerary for {travel_type} travelers visiting: {", ".join(destination_names)}.
