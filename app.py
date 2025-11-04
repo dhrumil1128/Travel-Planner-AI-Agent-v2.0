@@ -259,8 +259,7 @@ def get_visa_requirement(passport_code, destination_code):
             **Visa Type:** Standard Visitor Visa  
             **Processing Time:** 3-4 weeks  
             **Fee:** £115  
-            **Documents Required:**  
-            - Passport valid for 6 months  
+            **Documents Required:** - Passport valid for 6 months  
             - Bank statements (3 months)  
             - Proof of accommodation  
             - Return flight ticket  
@@ -275,8 +274,7 @@ def get_visa_requirement(passport_code, destination_code):
             **Visa Type:** B1/B2 Visitor Visa  
             **Processing Time:** 2-3 months (interview required)  
             **Fee:** $185  
-            **Documents Required:**  
-            - DS-160 form completed  
+            **Documents Required:** - DS-160 form completed  
             - Recent photograph  
             - Proof of financial means  
             
@@ -302,8 +300,7 @@ def get_visa_requirement(passport_code, destination_code):
             "title": "✅ Visa Not Required",
             "content": """
             **Allowed Stay:** Up to 6 months  
-            **Requirements:**  
-            - Valid passport  
+            **Requirements:** - Valid passport  
             - Proof of onward travel  
             - Sufficient funds for stay
             """
@@ -353,8 +350,7 @@ def get_visa_requirement(passport_code, destination_code):
             "title": "✅ Visa Not Required",
             "content": """
             **Allowed Stay:** Up to 6 months  
-            **Requirements:**  
-            - Valid passport  
+            **Requirements:** - Valid passport  
             - Proof of onward travel
             """
         },
@@ -363,8 +359,7 @@ def get_visa_requirement(passport_code, destination_code):
             "title": "✅ Visa Not Required",
             "content": """
             **Allowed Stay:** Up to 6 months  
-            **Requirements:**  
-            - Valid passport  
+            **Requirements:** - Valid passport  
             - Proof of sufficient funds
             """
         },
@@ -831,35 +826,61 @@ with tab2:
             default=st.session_state.selected_places
         )
         
+        # --------------------------------------------------------------------------------------------------
+        # START OF REPLACEMENT: The old local generation logic is replaced by the API call logic below.
+        # --------------------------------------------------------------------------------------------------
         if st.button("✨ Generate Itinerary", type="primary"):
-            with st.spinner("Creating your personalized itinerary..."):
-                state = AgentState(preferences={
-                    "preferred_city": city,
-                    "start_date": start_date,
-                    "end_date": end_date,
-                    "travel_type": travel_type
-                })
-                state.suggested_destinations = [
-                    d for d in st.session_state.destinations 
-                    if d["name"] in selected_places
-                ]
-                updated_state = create_itinerary(state)
-                st.session_state.itinerary_data = updated_state.itinerary
-                st.session_state.itinerary_generated = True
-                st.rerun()
+            # Check for selected places before sending to API
+            if not selected_places:
+                st.warning("Please select at least one place for the itinerary.")
+            else:
+                with st.spinner("Creating your personalized itinerary via Agent Backend..."):
+                    
+                    # 1. Configuration
+                    BACKEND_URL = "https://travel-planner-ai-agent-v2-0-2.onrender.com"
+                    ENDPOINT = "/recommend" 
+                    
+                    # Calculate trip days (ensure this is a positive number)
+                    num_days = (end_date - start_date).days + 1 if (end_date - start_date).days >= 0 else 1
+                    
+                    # 2. Prepare Payload for FastAPI's /recommend endpoint
+                    payload = {
+                        "trip_type": travel_type, 
+                        "region": city, 
+                        "budget": "mid-range", # Assuming a default budget 
+                        "days": num_days,
+                        "places": selected_places # Pass the list of selected places
+                    }
+                    
+                    try:
+                        # 3. Send Request to the Deployed Agent (using a timeout)
+                        response = requests.post(f"{BACKEND_URL}{ENDPOINT}", json=payload, timeout=120) 
+                        response.raise_for_status() # Raise exception for 4xx/5xx errors
+                        
+                        # 4. Process Response
+                        backend_result = response.json()
+                        final_response = backend_result.get("result", "⚠️ Agent returned an empty or malformed response.")
+                        
+                        # 5. Store Result in a new session state variable
+                        st.session_state.itinerary_output = final_response
+                        st.session_state.itinerary_generated = True
+                        
+                    except requests.exceptions.RequestException as e:
+                        st.error(f"❌ Connection Error: Could not reach the agent backend. Detail: {e}")
+                    except Exception as e:
+                        st.error(f"An unexpected error occurred: {e}")
+        # --------------------------------------------------------------------------------------------------
+        # END OF REPLACEMENT: The new display logic follows.
+        # --------------------------------------------------------------------------------------------------
 
-    if st.session_state.get('itinerary_generated', False) and 'itinerary_data' in st.session_state:
+    # New block to display itinerary (replaces the old itinerary_data display)
+    if st.session_state.get('itinerary_generated', False) and 'itinerary_output' in st.session_state:
         st.markdown("---")
-        st.markdown("### 🗓️ Personalized Itinerary")
-        for day in st.session_state.itinerary_data:
-            with st.container():
-                st.markdown(f"""
-                <div class='itinerary-day'>
-                    <h4>📅 {day['date']}</h4>
-                    {day['activities'].replace('•', '✦')}
-                </div>
-                """, unsafe_allow_html=True)
+        st.markdown("### 🗓️ Personalized Itinerary from Agent")
+        # Display the result (which is expected to be a Markdown string)
+        st.markdown(st.session_state.itinerary_output)
 
+    # The original fallback message is kept
     elif not hasattr(st.session_state, 'destinations'):
         st.markdown("<div class='center-message'>🕵️‍♂️ Fill out your preferences in the sidebar and hit <b>'Find Destinations'</b></div>", unsafe_allow_html=True)
 
@@ -1116,9 +1137,7 @@ with tab4:
                     if st.toggle("🧮 Show calculation example", key="currency_example_toggle"):
                         st.markdown(f"""
                         **Example:** If a hotel costs $100/night for 5 nights:  
-                        - USD Total = $100 × 5 = **$500**  
-                        - INR Total = $500 × 83.50 = **₹41,750**  
-                        """)
+                        - USD Total = $100 × 5 = **$500** - INR Total = $500 × 83.50 = **₹41,750** """)
                     
                     # Add visual comparison
                     st.progress(min(100, int(cost_data['total_cost']/1000)))  # Simple visual indicator
