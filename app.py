@@ -27,7 +27,7 @@ Money_Exchange_RATE_API_KEY = os.getenv("MONEY_EXCHANGE_RATE_API_KEY")
 
 # ------------------ Gemini Setup ------------------
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("models/gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 # ------------------ TRIP COST ESTIMATOR (Enhanced Version) ------------------
