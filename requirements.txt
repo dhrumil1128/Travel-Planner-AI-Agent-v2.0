@@ -97,6 +97,6 @@ zope.interface==7.2
 zstandard==0.23.0
 transformers==4.30.0  
 torch  
-tokenizers
+tokenizers==0.15.2
 
 
