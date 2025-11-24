@@ -617,12 +617,11 @@ def find_destinations(state: AgentState) -> AgentState:
         state.suggested_destinations = []
         return state
 
-    geo_url = "https://opentripmap-places-v1.p.rapidapi.com/en/places/geoname"
+    geo_url = "https://api.opentripmap.com/0.1/en/places/geoname"
     headers = {
         "X-RapidAPI-Key": OPENTRIPMAP_API_KEY,
-        "X-RapidAPI-Host": "opentripmap-places-v1.p.rapidapi.com"
     }
-    geo_params = {"name": city}
+     geo_params = {"name": city, "apikey": OPENTRIPMAP_API_KEY}
 
     try:
         geo_resp = requests.get(geo_url, headers=headers, params=geo_params)
@@ -641,7 +640,7 @@ def find_destinations(state: AgentState) -> AgentState:
         print("Geo Error:", e)
         return state
 
-    places_url = "https://opentripmap-places-v1.p.rapidapi.com/en/places/radius"
+    places_url ="https://api.opentripmap.com/0.1/en/places/radius"
     places_params = {
         "radius": "10000",
         "lon": lon,
