@@ -617,14 +617,58 @@ def find_destinations(state: AgentState) -> AgentState:
         state.suggested_destinations = []
         return state
 
-    geo_url = "https://api.opentripmap.com/0.1/en/places/geoname"
+    # First try Travel Advisor API for better destination data and images
+    travel_advisor_url = "https://travel-advisor.p.rapidapi.com/locations/search"
     headers = {
-        "X-RapidAPI-Key": OPENTRIPMAP_API_KEY,
+        "X-RapidAPI-Key": RAPIDAPI_KEY,
+        "X-RapidAPI-Host": "travel-advisor.p.rapidapi.com"
     }
-     geo_params = {"name": city, "apikey": OPENTRIPMAP_API_KEY}
+    travel_advisor_params = {
+        "query": city,
+        "limit": "15",
+        "currency": "USD",
+        "lang": "en_US"
+    }
 
     try:
-        geo_resp = requests.get(geo_url, headers=headers, params=geo_params)
+        # Try Travel Advisor API first
+        response = requests.get(travel_advisor_url, headers=headers, params=travel_advisor_params)
+        results = response.json().get("data", [])
+        suggestions = []
+
+        for place in results:
+            result = place.get("result_object")
+            if not result:
+                continue
+            name = result.get("name")
+            location = result.get("location_string", "")
+            lat = result.get("latitude")
+            lon = result.get("longitude")
+            
+            # Use Travel Advisor data for better destination info
+            if name and lat and lon and city.lower() in location.lower():
+                suggestions.append({
+                    "name": name,
+                    "region": location,
+                    "latitude": lat,
+                    "longitude": lon,
+                    "source": "travel_advisor"  # Mark source for reference
+                })
+
+        if suggestions:
+            state.suggested_destinations = suggestions
+            return state
+            
+    except Exception as e:
+        print("Travel Advisor API error:", e)
+        # Continue to OpenTripMap as fallback
+
+    # Fallback to OpenTripMap API if Travel Advisor fails
+    geo_url = "https://api.opentripmap.com/0.1/en/places/geoname"
+    geo_params = {"name": city, "apikey": OPENTRIPMAP_API_KEY}
+
+    try:
+        geo_resp = requests.get(geo_url, params=geo_params)
         geo_data = geo_resp.json()
 
         if 'error' in geo_data:
@@ -640,18 +684,19 @@ def find_destinations(state: AgentState) -> AgentState:
         print("Geo Error:", e)
         return state
 
-    places_url ="https://api.opentripmap.com/0.1/en/places/radius"
+    places_url = "https://api.opentripmap.com/0.1/en/places/radius"
     places_params = {
         "radius": "10000",
         "lon": lon,
         "lat": lat,
         "kinds": interest.replace(" ", "_"),
         "format": "json",
-        "limit": "25"
+        "limit": "25",
+        "apikey": OPENTRIPMAP_API_KEY
     }
 
     try:
-        places_resp = requests.get(places_url, headers=headers, params=places_params)
+        places_resp = requests.get(places_url, params=places_params)
         results = places_resp.json()
         suggestions = []
 
@@ -672,7 +717,8 @@ def find_destinations(state: AgentState) -> AgentState:
                     "latitude": item.get("point", {}).get("lat"),
                     "longitude": item.get("point", {}).get("lon"),
                     "xid": item.get("xid"),
-                    "rate": rate
+                    "rate": rate,
+                    "source": "opentripmap"  # Mark source for reference
                 })
 
         state.suggested_destinations = suggestions
@@ -682,11 +728,16 @@ def find_destinations(state: AgentState) -> AgentState:
         return state
 
 def get_image_url(destination_name):
+    """Get destination image from Unsplash"""
     url = f"https://api.unsplash.com/photos/random?query={destination_name}&client_id={UNSPLASH_ACCESS_KEY}&orientation=landscape"
-    res = requests.get(url)
-    return res.json().get("urls", {}).get("regular") if res.status_code == 200 else None
-
-
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()["urls"]["regular"]
+        return None
+    except Exception as e:
+        print("Image fetch error:", e)
+        return None
     
 # ------------------ Main App ------------------
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["🧳 AI Travel Chat", "🧭 Destination Finder",  "📌 Trip Planning Essentials", "💰 Cost Estimator", "✈️ Flight & Deals"])
